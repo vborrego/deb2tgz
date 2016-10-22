@@ -23,17 +23,13 @@
 CURRDIR=$(pwd)
 
 if [ "$1" = "" ]; then
-    echo "$0:  Converts DEB format to standard GNU tar + GNU zip format or XZ format."
-    echo "            (view converted packages with \"less\", install and remove"
-    echo "            with \"installpkg\", \"removepkg\", \"pkgtool\", or manually"
-    echo "            with \"tar\")"
+    echo "$0:  Converts DEB format to standard GNU tar + (GZ/XZ/LZ/BZ) format."
+    echo "    (view converted packages with \"less\", install and remove"
+    echo "    with \"installpkg\", \"removepkg\", \"pkgtool\", or manually"
+    echo "    with \"tar\")"
     echo
-    echo "Usage:      $0 <file.deb>"
-    if [ "`basename $0`" = "deb2tgz" ]; then
-	echo "            (Outputs \"file.t*z\")"
-    else
-	echo "            (Outputs \"file.tar.*z\")"
-    fi
+    echo "Usage:    $0 <file.deb>"
+    echo "    (Outputs \"file.t*z\")"
     exit 1;
 fi
 
@@ -41,25 +37,25 @@ fi
 make_temp_dir()
 {
     if [ -x "$(which mcookie)" ]; then
-	tempd=/tmp/tmp.$(mcookie)
-	mkdir -p -m 0755 $tempd
+        tempd=/tmp/tmp.$(mcookie)
+        mkdir -p -m 0755 $tempd
     elif [ -x "$(which openssl)" ]; then
-	tempd=/tmp/tmp.$(dd if=/dev/urandom bs=1k count=1 2> /dev/null | openssl dgst -md5)
-	mkdir -p -m 0755 $tempd
+        tempd=/tmp/tmp.$(dd if=/dev/urandom bs=1k count=1 2> /dev/null | openssl dgst -md5)
+        mkdir -p -m 0755 $tempd
     elif [ -x "$(which md5)" ]; then
-	tempd=/tmp/tmp.$(dd if=/dev/urandom bs=1k count=1 2> /dev/null | md5)
-	mkdir -p -m 0755 $tempd
+        tempd=/tmp/tmp.$(dd if=/dev/urandom bs=1k count=1 2> /dev/null | md5)
+        mkdir -p -m 0755 $tempd
     elif [ -x "$(which mktemp)" ]; then
-	tempd=$(mktemp -d)
-	chmod 755 $tempd
+        tempd=$(mktemp -d)
+        chmod 755 $tempd
     fi
 
     if [ -d $tempd ]; then # success, return the name of the directory:
-	echo $tempd
+        echo $tempd
     else
-	echo "ERROR:  Could not find mcookie, openssl, or md5."
-	echo "        Exiting since a secure temporary directory could not be made."
-	exit 1
+        echo "ERROR:  Could not find mcookie, openssl, or md5."
+        echo "        Exiting since a secure temporary directory could not be made."
+       exit 1
     fi
 }
 
@@ -77,15 +73,15 @@ for debfile in $* ; do
     #mv $DATAFILE $TMPDIR
     if [ ! $? = 0 ]; then
         echo "ERROR:  ar failed. (maybe $debfile is not an DEB?)"
-	rm -rf $TMPDIR
+        rm -rf $TMPDIR
         continue
     fi
 
-    # Repack the files in a tar+gz or tar+xz archive:
+    # Repack the files in the right archive:
     if [ "`basename $0`" = "deb2tgz" ]; then
         if [ -f "$TMPDIR/data.tar.gz" ]
         then
-	  mv $TMPDIR/data.tar.gz $CURRDIR/$(basename $debfile .deb).tgz
+          mv $TMPDIR/data.tar.gz $CURRDIR/$(basename $debfile .deb).tgz
         fi
 
         if [ -f "$TMPDIR/data.tar.xz" ]
