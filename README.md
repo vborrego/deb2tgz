@@ -21,5 +21,5 @@ Test deb file with xz in it
  * run ```./deb2tgz less_487-0.1_amd64.deb ```
  * Check txz contents
 ```sh
-tar tvJf less_590-1ubuntu0.22.04.1_amd64.txz 
+tar tvJf less_487-0.1_amd64.txz 
 ```
