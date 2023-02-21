@@ -98,6 +98,21 @@ for debfile in $* ; do
         then
           mv $TMPDIR/data.tar.lzma $CURRDIR/$(basename $debfile .deb).tlz
         fi
+
+        # Added suggested support for zst as mentioned in issue 1 created by @sevens.
+        # Check commits sevens@9a99096 and sevens@9829fbf 
+        # https://github.com/sevens/deb2tgz/commit/9a990965577c286a268ac982172cc502564c155f
+        # https://github.com/sevens/deb2tgz/commit/9829fbf1309439b96dfa9f93a79c486491daabbf
+        if [ -f "$TMPDIR/data.tar.zst" ]
+        then
+          THREADS=0
+          if [ "$(uname -m)" = "x86_64" ] || [ "$(uname -m)" = "aarch64" ] || ["$(uname -m)" = "riscv64"]
+          then
+            THREADS=2
+          fi
+          pzstd --decompress --stdout $TMPDIR/data.tar.zst | xz --compress --threads=$THREADS - > $CURRDIR/$(basename $debfile .deb).txz
+          rm "$TMPDIR/data.tar.zst"
+        fi
     fi
 
     # Remove temporary directory:
